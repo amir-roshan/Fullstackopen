@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant browser
+    participant server
+
+    Note over browser: User writes a note and clicks Save
+    browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/new_note
+    activate server
+    Note over server: Server processes the note
+    server-->>browser: Confirmation/Redirection
+    deactivate server
+
+    Note over browser: Browser updates or refreshes the page
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/notes
+    activate server
+    server-->>browser: Updated HTML document with new note
+    deactivate server
