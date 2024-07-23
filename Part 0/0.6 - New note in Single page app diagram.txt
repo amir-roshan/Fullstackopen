@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant U as User
+    participant B as Browser
+    participant S as Server
+
+    U->>B: Enters note and clicks 'Save'
+    B->>B: Capture form submit & prevent default
+    Note right of B: Update local notes array
+    B->>B: Call redrawNotes() to update UI
+    B->>S: POST /exampleapp/new_note_spa (note data)
+    activate S
+    Note over S: Process and store the note
+    S-->>B: 201 Created (confirmation)
+    deactivate S

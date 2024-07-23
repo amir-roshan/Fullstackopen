@@ -1,0 +1,27 @@
+sequenceDiagram
+    participant browser as Browser
+    participant server as Server
+
+    Note over browser: User accesses SPA version of notes app
+    browser->>server: GET /exampleapp/spa
+    activate server
+    server-->>browser: HTML, CSS, JavaScript files
+    deactivate server
+
+    Note over browser: JavaScript fetches initial notes after load
+    browser->>server: GET /exampleapp/data.json
+    activate server
+    server-->>browser: JSON data (notes)
+    deactivate server
+
+    Note over browser: JavaScript updates UI with notes
+    browser->>browser: redrawNotes()
+
+    Note over browser: User submits a new note
+    browser->>browser: Form submit intercepted, note added locally & UI updated
+
+    browser->>server: POST /exampleapp/new_note_spa (JSON data)
+    activate server
+    Note over server: Server processes new note
+    server-->>browser: 201 Created (confirmation)
+    deactivate server
