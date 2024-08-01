@@ -8,8 +8,18 @@ const App = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        setPersons(persons.concat({ name: newName }));
-        console.log(persons);
+
+        let isNameSimilar = false;
+
+        persons.forEach(item => {
+            isNameSimilar = item.name === newName;
+        });
+
+        if (isNameSimilar) {
+            alert(`${newName} is already added to the framework`);
+        } else {
+            setPersons(persons.concat({ name: newName }));
+        }
     };
 
     const handlePhoneName = (event) => {
