@@ -1,27 +1,33 @@
 import { useEffect, useState } from 'react';
 
+import axios from 'axios';
+
 import Phonebook from './components/Phonebook';
 import PersonForm from './components/PersonForm ';
 import Persons from './components/Persons';
-import axios from 'axios';
+
+import phoneNumberService from './services/phoneNumbers';
 
 const App = () => {
     const [persons, setPersons] = useState([]);
     const [newName, setNewName] = useState('');
-    const [phoneNumber, setPhoneNymber] = useState(0);
+    const [phoneNumber, setPhoneNumber] = useState(0);
     const [isFiltered, setIsFiltered] = useState(false);
 
     const fetchPersons = () => {
-        axios.get("http://localhost:3001/persons")
-            .then(response => {
-                const data = response.data;
-                const newPersons = data.map(person => ({ name: person.name, phoneNumber: person.number, id: person.id }));
-
-                setPersons(persons.concat(newPersons));
-            });
+        const persons = phoneNumberService.getAll();
+        persons.then(initialPhoneNums => {
+            setPersons(prevPersons => prevPersons.concat(initialPhoneNums));
+        });
     };
 
-    useEffect(() => fetchPersons, []);
+    const addPerson = (newPerson) => {
+        const addedPerson = phoneNumberService.add(newPerson);
+        addedPerson.then(response => setPersons(persons.concat(response)));
+        setNewName('');
+    };
+
+    useEffect(() => fetchPersons(), []);
 
     const handleFilter = (event) => {
         setIsFiltered(true);
@@ -45,7 +51,8 @@ const App = () => {
             alert(`${newName} is already added to the framework`);
         }
         else {
-            setPersons(persons.concat({ name: newName, phoneNumber: phoneNumber, id: Math.random }));
+            const newPerson = { name: newName, phoneNumber: phoneNumber };
+            addPerson(newPerson);
         }
     };
 
@@ -56,7 +63,7 @@ const App = () => {
 
     const handlePhoneNUmber = (event) => {
         const phoneNumber = event.target.value;
-        setPhoneNymber(phoneNumber);
+        setPhoneNumber(phoneNumber);
     };
 
     return (
