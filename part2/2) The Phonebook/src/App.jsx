@@ -62,7 +62,14 @@ const App = () => {
         });
 
         if (isNameSimilar) {
-            alert(`${newName} is already added to the framework`);
+            if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+                let similarPerson = persons.filter(person => person.name === newName);
+
+                similarPerson = { ...similarPerson[0], phoneNumber: phoneNumber };
+
+                phoneNumberService.update(similarPerson)
+                    .then(response => setPersons(persons.map(person => person.id !== similarPerson.id ? person : response.data)));
+            } else return;
         }
         else {
             const newPerson = { name: newName, phoneNumber: phoneNumber };
