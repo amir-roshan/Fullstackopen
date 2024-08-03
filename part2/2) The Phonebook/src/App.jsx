@@ -80,9 +80,12 @@ const App = () => {
         setPhoneNumber(phoneNumber);
     };
 
-    const handleDelete = id => {
-        reomvePerson(id);
-        setPersons(prevPersons => prevPersons.filter(person => person.id !== id));
+    const handleDelete = (name, id) => {
+        if (window.confirm(`Delete ${name}?`)) {
+            reomvePerson(id);
+            setPersons(prevPersons => prevPersons.filter(person => person.id !== id));
+        }
+        else return;
     };
 
     useEffect(() => fetchPersons(), []);
