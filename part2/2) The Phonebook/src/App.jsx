@@ -15,19 +15,33 @@ const App = () => {
     const [isFiltered, setIsFiltered] = useState(false);
 
     const fetchPersons = () => {
-        const persons = phoneNumberService.getAll();
-        persons.then(initialPhoneNums => {
+        const fetchedPersons = phoneNumberService.getAll();
+        fetchedPersons.then(initialPhoneNums => {
+
+            const unFilteredPersons = initialPhoneNums.concat(persons);
+
+            const filteredPersons = [];
+            unFilteredPersons.forEach(person => {
+                if (!filteredPersons.includes(person)) {
+                    filteredPersons.push(person);
+                }
+            }
+            );
+
             setPersons(prevPersons => prevPersons.concat(initialPhoneNums));
         });
     };
 
     const addPerson = (newPerson) => {
         const addedPerson = phoneNumberService.add(newPerson);
-        addedPerson.then(response => setPersons(persons.concat(response)));
+        addedPerson.then(response => setPersons(prevPersons => prevPersons.concat(response)));
         setNewName('');
     };
 
-    useEffect(() => fetchPersons(), []);
+    const reomvePerson = (id) => {
+        phoneNumberService.remove(id);
+    };
+
 
     const handleFilter = (event) => {
         setIsFiltered(true);
@@ -66,6 +80,13 @@ const App = () => {
         setPhoneNumber(phoneNumber);
     };
 
+    const handleDelete = id => {
+        reomvePerson(id);
+        setPersons(prevPersons => prevPersons.filter(person => person.id !== id));
+    };
+
+    useEffect(() => fetchPersons(), []);
+
     return (
         <div>
             <h2>Phonebook</h2>
@@ -73,7 +94,7 @@ const App = () => {
             <h2>Add a New</h2>
             <PersonForm onSubmit={handleSubmit} onNameChange={handlePhoneName} onPhoneNumChange={handlePhoneNUmber} />
             <h2>Numbers</h2>
-            <Persons isFiltered={isFiltered} persons={persons} newName={newName} />
+            <Persons isFiltered={isFiltered} persons={persons} newName={newName} handleDelete={handleDelete} />
         </div>
     );
 };
