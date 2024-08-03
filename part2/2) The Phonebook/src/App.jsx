@@ -1,19 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Phonebook from './components/Phonebook';
 import PersonForm from './components/PersonForm ';
 import Persons from './components/Persons';
+import axios from 'axios';
 
 const App = () => {
-    const [persons, setPersons] = useState([
-        { name: 'Arto Hellas', phoneNumber: '040-123456', id: 1 },
-        { name: 'Ada Lovelace', phoneNumber: '39-44-5323523', id: 2 },
-        { name: 'Dan Abramov', phoneNumber: '12-43-234345', id: 3 },
-        { name: 'Mary Poppendieck', phoneNumber: '39-23-6423122', id: 4 }
-    ]);
+    const [persons, setPersons] = useState([]);
     const [newName, setNewName] = useState('');
     const [phoneNumber, setPhoneNymber] = useState(0);
     const [isFiltered, setIsFiltered] = useState(false);
+
+    const fetchPersons = () => {
+        axios.get("http://localhost:3001/persons")
+            .then(response => {
+                const data = response.data;
+                const newPersons = data.map(person => ({ name: person.name, phoneNumber: person.number, id: person.id }));
+
+                setPersons(persons.concat(newPersons));
+            });
+    };
+
+    useEffect(() => fetchPersons, []);
 
     const handleFilter = (event) => {
         setIsFiltered(true);
@@ -37,7 +45,7 @@ const App = () => {
             alert(`${newName} is already added to the framework`);
         }
         else {
-            setPersons(persons.concat({ name: newName, phoneNumber: phoneNumber }));
+            setPersons(persons.concat({ name: newName, phoneNumber: phoneNumber, id: Math.random }));
         }
     };
 
