@@ -34,11 +34,11 @@ const App = () => {
             }
         }, {
             name: "number", style: {
-                color: 'lightgreen',
+                color: 'blue',
                 backgroundColor: "lightgrey",
                 fontSize: "24px",
                 padding: "15px",
-                border: "medium solid red"
+                border: "medium solid green"
             }
         }
     ];
@@ -67,23 +67,25 @@ const App = () => {
         setNewName('');
     };
 
-    const reomvePerson = (id) => {
-        phoneNumberService.remove(id);
+    const reomvePerson = (id, name) => {
+        phoneNumberService.remove(id).catch(err => {
+            handleMessage(`Information of ${name} has already been removed from the server.`, "delete");
+            console.error(err);
+        });
     };
 
-    const handleMessage = (name, event) => {
+    const handleMessage = (message, event) => {
         const messageStyle = styles.find(style => style.name === event);
         setStyle(messageStyle.style);
-        console.log(style);
 
         if (event === "number") {
-            setMessage(`${name}'s number is now changed`);
+            setMessage(message);
         }
         else if (event === "name") {
-            setMessage(`Added ${name}`);
+            setMessage(message);
         }
         else if (event === "delete") {
-            setMessage(`Deleted ${name}`);
+            setMessage(message);
         }
 
         setTimeout(() => {
@@ -118,13 +120,13 @@ const App = () => {
                 phoneNumberService.update(similarPerson)
                     .then(response => setPersons(persons.map(person => person.id !== similarPerson.id ? person : response.data)));
 
-                messageStyle = handleMessage(newName, "number");
+                handleMessage(`${newName}'s phone number has been updated.`, "number");
             } else return;
         }
         else {
             const newPerson = { name: newName, phoneNumber: phoneNumber };
             addPerson(newPerson);
-            messageStyle = handleMessage(newName, "name");
+            handleMessage(`Added ${newPerson.name}`, "name");
         }
     };
 
@@ -140,12 +142,11 @@ const App = () => {
 
     const handleDelete = (name, id) => {
         if (window.confirm(`Delete ${name}?`)) {
-            reomvePerson(id);
             const deletedPerson = persons.find(person => person.id === id);
+
+            reomvePerson(id, deletedPerson.name);
             setPersons(prevPersons => prevPersons.filter(person => person.id !== id));
-
-
-            handleMessage(deletedPerson.name, "delete");
+            handleMessage(`Deleted ${deletedPerson.name}`, "delete");
         }
         else return;
     };
