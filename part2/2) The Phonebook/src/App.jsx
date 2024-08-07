@@ -68,9 +68,8 @@ const App = () => {
     };
 
     const reomvePerson = (id, name) => {
-        phoneNumberService.remove(id).catch(err => {
+        phoneNumberService.remove(id).catch(() => {
             handleMessage(`Information of ${name} has already been removed from the server.`, "delete");
-            console.error(err);
         });
     };
 
