@@ -65,6 +65,7 @@ const App = () => {
         const addedPerson = phoneNumberService.add(newPerson);
         addedPerson.then(response => setPersons(prevPersons => prevPersons.concat(response)));
         setNewName('');
+        setPhoneNumber(0);
     };
 
     const reomvePerson = (id, name) => {
@@ -120,6 +121,8 @@ const App = () => {
                     .then(response => setPersons(persons.map(person => person.id !== similarPerson.id ? person : response.data)));
 
                 handleMessage(`${newName}'s phone number has been updated.`, "number");
+                setNewName('');
+                setPhoneNumber(0);
             } else return;
         }
         else {
@@ -158,7 +161,7 @@ const App = () => {
             <Message onMessage={message} onChangeStyle={style} />
             <Phonebook onFilter={handleFilter} />
             <h2>Add a New</h2>
-            <PersonForm onSubmit={handleSubmit} onNameChange={handlePhoneName} onPhoneNumChange={handlePhoneNUmber} />
+            <PersonForm onSubmit={handleSubmit} onNameChange={handlePhoneName} onPhoneNumChange={handlePhoneNUmber} onName={newName} onNumber={phoneNumber} />
             <h2>Numbers</h2>
             <Persons isFiltered={isFiltered} persons={persons} newName={newName} handleDelete={handleDelete} />
         </div>
