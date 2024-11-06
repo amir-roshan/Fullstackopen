@@ -2,8 +2,9 @@ import express from "express";
 import { persons } from "./data.js";
 import { generateUniqueId } from "./utility.js";
 import morgan from "morgan";
+import cors from "cors";
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const app = express();
 
 morgan.token("body", (req) => {
@@ -14,8 +15,10 @@ const logger = morgan(
   ":method :url :status :res[content-length] - :response-time ms :body"
 );
 
+app.use(express.static("dist"));
 app.use(express.json());
 app.use(logger);
+app.use(cors());
 
 app.get("/api/persons", (req, res) => {
   res.json(persons);
