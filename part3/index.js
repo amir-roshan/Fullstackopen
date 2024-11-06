@@ -44,6 +44,20 @@ app.post("/api/persons", (req, res) => {
   const uniqueId = generateUniqueId();
   const newPerson = { id: uniqueId, ...req.body };
 
+  const sameName = persons.find((person) => newPerson.name === person.name);
+
+  if (newPerson.name === undefined || newPerson.name === "") {
+    return res.status(400).send("<h2>Person does not have any name!</h2>");
+  } else if (newPerson.number === undefined || newPerson.number === "") {
+    return res
+      .status(400)
+      .send("<h2>Person does not have any phone numbers!</h2>");
+  } else if (sameName) {
+    return res
+      .status(400)
+      .send("<h2>A person with the same name is added!</h2>");
+  }
+
   persons.push(newPerson);
   res.send(newPerson);
 });
