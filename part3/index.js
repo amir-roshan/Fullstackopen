@@ -1,11 +1,13 @@
 import express from "express";
 import { persons } from "./data.js";
 import { generateUniqueId } from "./utility.js";
+import morgan from "morgan";
 
 const PORT = 3001;
 const app = express();
 
 app.use(express.json());
+app.use(morgan("tiny"));
 
 app.get("/api/persons", (req, res) => {
   res.json(persons);
