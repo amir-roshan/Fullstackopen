@@ -1,10 +1,11 @@
 import express from "express";
 import { persons } from "./data.js";
+import { generateUniqueId } from "./utility.js";
 
 const PORT = 3001;
 const app = express();
 
-// app.use(express.json());
+app.use(express.json());
 
 app.get("/api/persons", (req, res) => {
   res.json(persons);
@@ -37,6 +38,14 @@ app.delete("/api/persons/:id", (req, res) => {
   persons.splice(person.id - 1, 1);
 
   res.send(person);
+});
+
+app.post("/api/persons", (req, res) => {
+  const uniqueId = generateUniqueId();
+  const newPerson = { id: uniqueId, ...req.body };
+
+  persons.push(newPerson);
+  res.send(newPerson);
 });
 
 app.get("/info", (req, res) => {
