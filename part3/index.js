@@ -6,8 +6,16 @@ import morgan from "morgan";
 const PORT = 3001;
 const app = express();
 
+morgan.token("body", (req) => {
+  return JSON.stringify(req.body);
+});
+
+const logger = morgan(
+  ":method :url :status :res[content-length] - :response-time ms :body"
+);
+
 app.use(express.json());
-app.use(morgan("tiny"));
+app.use(logger);
 
 app.get("/api/persons", (req, res) => {
   res.json(persons);
