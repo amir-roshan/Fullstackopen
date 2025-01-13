@@ -4,7 +4,7 @@ import { generateUniqueId } from "./utility.js";
 import morgan from "morgan";
 import cors from "cors";
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const app = express();
 
 morgan.token("body", (req) => {
@@ -19,6 +19,15 @@ app.use(express.static("dist"));
 app.use(express.json());
 app.use(logger);
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; font-src 'self' data: https://part3-little-lake-2511.fly.dev; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'"
+  );
+  next();
+});
 
 app.get("/api/persons", (req, res) => {
   res.json(persons);
@@ -57,11 +66,16 @@ app.post("/api/persons", (req, res) => {
   const uniqueId = generateUniqueId();
   const newPerson = { id: uniqueId, ...req.body };
 
+  console.log(req.body);
+
   const sameName = persons.find((person) => newPerson.name === person.name);
 
   if (newPerson.name === undefined || newPerson.name === "") {
     return res.status(400).send("<h2>Person does not have any name!</h2>");
-  } else if (newPerson.number === undefined || newPerson.number === "") {
+  } else if (
+    newPerson.phoneNumber === undefined ||
+    newPerson.phoneNumber === ""
+  ) {
     return res
       .status(400)
       .send("<h2>Person does not have any phone numbers!</h2>");
@@ -86,4 +100,6 @@ app.get("/info", (req, res) => {
         `);
 });
 
-app.listen(PORT);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+});

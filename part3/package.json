@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "deploy": "fly deploy",
+    "logs:prod": "fly logs"
   },
   "type": "module",
   "dependencies": {

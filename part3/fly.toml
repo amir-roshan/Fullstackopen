@@ -1,15 +1,12 @@
-# fly.toml app configuration file generated for part3-damp-frog-7671 on 2024-11-06T13:00:49-08:00
+# fly.toml app configuration file generated for part3-little-lake-2511 on 2024-11-11T16:37:22-08:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'part3-damp-frog-7671'
+app = 'part3-little-lake-2511'
 primary_region = 'sea'
 
 [build]
-
-[env]
-  PORT = "3000" 
 
 [http_service]
   internal_port = 3000
