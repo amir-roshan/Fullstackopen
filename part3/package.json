@@ -4,7 +4,7 @@
   "description": "Your package description",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "node app.js",
     "dev": "nodemon app.js",
     "deploy": "fly deploy",
     "logs:prod": "fly logs"
