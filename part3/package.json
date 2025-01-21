@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.7.2",
-    "@types/node": "^22.10.7"
+    "@types/node": "^22.10.7",
+    "webpack": "^5.97.1"
   }
 }
