@@ -16,18 +16,6 @@ const logger = morgan(
   ":method :url :status :res[content-length] - :response-time ms :body"
 );
 
-app.use(
-  helmet({
-    directives: {
-      defaultSrc: ["'self'"],
-      fontSrc: [
-        "'self'",
-        "https://part3-little-lake-2511.fly.dev",
-        "https://fonts.gstatic.com",
-      ],
-    },
-  })
-);
 app.use(express.static("dist"));
 app.use(express.json());
 app.use(logger);
@@ -110,5 +98,5 @@ app.get("/info", (req, res) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}/`);
 });
