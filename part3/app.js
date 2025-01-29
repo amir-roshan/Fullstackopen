@@ -1,16 +1,36 @@
 import express from "express";
 import { persons } from "./data.js";
-import { generateUniqueId } from "./utility.js";
 import morgan from "morgan";
 import cors from "cors";
-import helmet from "helmet";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+
+dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+mongoose.set("strictQuery", false);
+mongoose.connect(process.env.MONGODB_URI);
+
 morgan.token("body", (req) => {
   return JSON.stringify(req.body);
 });
+
+const personSchema = new mongoose.Schema({
+  name: String,
+  phoneNumber: String,
+});
+
+personSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
+
+const Person = mongoose.model("Person", personSchema);
 
 const logger = morgan(
   ":method :url :status :res[content-length] - :response-time ms :body"
@@ -27,45 +47,48 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/persons", (req, res) => {
-  res.json(persons);
+  Person.find({}).then((result) => {
+    res.json(result);
+  });
 });
 
 app.get("/api/persons/:id", (req, res) => {
   const id = req.params.id;
-  const person = persons.find((person) => person.id === id);
 
-  if (person) {
-    res.json(person);
-  } else {
-    res
-      .status(404)
-      .send(`<h2>Person with the ID of ${id} is not found :(</h2>`);
-  }
+  Person.findById(id)
+    .then((person) => {
+      console.log(person);
+
+      if (person) {
+        res.json(person);
+      } else {
+        res
+          .status(404)
+          .send(`<h2>Person with the ID of ${id} is not found :(</h2>`);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send(err.message);
+    });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
-  const person = persons.find(
-    (person) => parseInt(person.id) === parseInt(req.params.id)
-  );
-
-  console.log(person);
-
-  if (!person) {
-    return res.status(404).send("<h2>Person is not found :(</h2>");
-  }
-
-  persons.splice(person.id - 1, 1);
-
-  res.send(person);
+  Person.findByIdAndDelete(req.params.id).then((deletedPerson) => {
+    res.send({ message: "Person deleted successfully", person: deletedPerson });
+  });
 });
 
 app.post("/api/persons", (req, res) => {
-  const uniqueId = generateUniqueId();
-  const newPerson = { id: uniqueId, ...req.body };
+  const newPerson = { ...req.body };
 
   console.log(req.body);
 
-  const sameName = persons.find((person) => newPerson.name === person.name);
+  let sameName = false;
+
+  Person.find({ name: newPerson.name }).then(() => {
+    sameName = true;
+  });
 
   if (newPerson.name === undefined || newPerson.name === "") {
     return res.status(400).send("<h2>Person does not have any name!</h2>");
@@ -80,10 +103,16 @@ app.post("/api/persons", (req, res) => {
     return res
       .status(400)
       .send("<h2>A person with the same name is added!</h2>");
-  }
+  } else {
+    const person = new Person({
+      name: newPerson.name,
+      phoneNumber: newPerson.phoneNumber,
+    });
 
-  persons.push(newPerson);
-  res.send(newPerson);
+    person.save().then((result) => {
+      res.json(result);
+    });
+  }
 });
 
 app.get("/info", (req, res) => {
