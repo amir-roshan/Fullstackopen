@@ -73,6 +73,7 @@ app.get("/api/persons/:id", (req, res) => {
     });
 });
 
+// 3.15: phone book and database, step3
 app.delete("/api/persons/:id", (req, res) => {
   Person.findByIdAndDelete(req.params.id).then((deletedPerson) => {
     res.send({ message: "Person deleted successfully", person: deletedPerson });
