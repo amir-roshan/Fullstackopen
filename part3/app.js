@@ -131,6 +131,20 @@ app.post("/api/persons", (req, res, next) => {
   }
 });
 
+// 3.17*: Phonebook database, step5
+app.put("/api/persons/:id", (req, res, next) => {
+  const id = req.params.id;
+  const updatedPerson = req.body;
+
+  Person.findByIdAndUpdate(id, updatedPerson, { new: true })
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((err) => {
+      next(err);
+    });
+});
+
 app.get("/info", (req, res) => {
   let phoneBookLength = persons.length;
 
