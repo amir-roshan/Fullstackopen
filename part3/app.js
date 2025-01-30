@@ -56,6 +56,7 @@ app.get("/api/persons", (req, res, next) => {
     });
 });
 
+// 3.18*: phone book and database, step6
 app.get("/api/persons/:id", (req, res, next) => {
   const id = req.params.id;
 
