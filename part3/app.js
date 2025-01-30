@@ -46,13 +46,17 @@ app.get("/", (req, res) => {
   res.sendFile("index.html", { root: __dirname });
 });
 
-app.get("/api/persons", (req, res) => {
-  Person.find({}).then((result) => {
-    res.json(result);
-  });
+app.get("/api/persons", (req, res, next) => {
+  Person.find({})
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((err) => {
+      next(err);
+    });
 });
 
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", (req, res, next) => {
   const id = req.params.id;
 
   Person.findById(id)
@@ -68,19 +72,25 @@ app.get("/api/persons/:id", (req, res) => {
       }
     })
     .catch((err) => {
-      console.error(err);
-      res.status(500).send(err.message);
+      next(err);
     });
 });
 
 // 3.15: phone book and database, step3
-app.delete("/api/persons/:id", (req, res) => {
-  Person.findByIdAndDelete(req.params.id).then((deletedPerson) => {
-    res.send({ message: "Person deleted successfully", person: deletedPerson });
-  });
+app.delete("/api/persons/:id", (req, res, next) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then((deletedPerson) => {
+      res.send({
+        message: "Person deleted successfully",
+        person: deletedPerson,
+      });
+    })
+    .catch((err) => {
+      next(err);
+    });
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   const newPerson = { ...req.body };
 
   console.log(req.body);
@@ -110,9 +120,14 @@ app.post("/api/persons", (req, res) => {
       phoneNumber: newPerson.phoneNumber,
     });
 
-    person.save().then((result) => {
-      res.json(result);
-    });
+    person
+      .save()
+      .then((result) => {
+        res.json(result);
+      })
+      .catch((err) => {
+        next(err);
+      });
   }
 });
 
@@ -126,6 +141,23 @@ app.get("/info", (req, res) => {
         <p>${today}</p>
         `);
 });
+
+// handler of requests with unknown endpoint
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+// handler of requests with unknown endpoint
+app.use(unknownEndpoint);
+
+// Centralize Error Handling
+// 3.16: phone book and database, step4
+const errorHandler = (err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
+};
+
+app.use(errorHandler);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on http://localhost:${PORT}/`);
