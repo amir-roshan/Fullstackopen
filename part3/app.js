@@ -23,7 +23,16 @@ const personSchema = new mongoose.Schema({
     required: true,
     minlength: 3,
   },
-  phoneNumber: String,
+  phoneNumber: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (v) {
+        return /^(?:\d{8}|\d{2,3}-\d{5,})$/.test(v);
+      },
+      message: (props) => `${props.value} is not a valid phone number!`,
+    },
+  },
 });
 
 personSchema.set("toJSON", {
@@ -116,7 +125,7 @@ app.post("/api/persons", async (req, res, next) => {
     }
 
     const person = new Person({ name, phoneNumber });
-    const savedPerson = await person
+    await person
       .save()
       .then((result) => {
         res.json(result);
