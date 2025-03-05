@@ -18,7 +18,11 @@ morgan.token("body", (req) => {
 });
 
 const personSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    required: true,
+    minlength: 3,
+  },
   phoneNumber: String,
 });
 
@@ -91,37 +95,28 @@ app.delete("/api/persons/:id", (req, res, next) => {
     });
 });
 
-app.post("/api/persons", (req, res, next) => {
-  const newPerson = { ...req.body };
+app.post("/api/persons", async (req, res, next) => {
+  try {
+    const { name, phoneNumber } = req.body;
 
-  console.log(req.body);
+    if (!name) {
+      return res.status(400).send("<h2>Person does not have any name!</h2>");
+    }
+    if (!phoneNumber) {
+      return res
+        .status(400)
+        .send("<h2>Person does not have any phone numbers!</h2>");
+    }
 
-  let sameName = false;
+    const existingPerson = await Person.findOne({ name });
+    if (existingPerson) {
+      return res
+        .status(400)
+        .send("<h2>A person with the same name is added!</h2>");
+    }
 
-  Person.find({ name: newPerson.name }).then(() => {
-    sameName = true;
-  });
-
-  if (newPerson.name === undefined || newPerson.name === "") {
-    return res.status(400).send("<h2>Person does not have any name!</h2>");
-  } else if (
-    newPerson.phoneNumber === undefined ||
-    newPerson.phoneNumber === ""
-  ) {
-    return res
-      .status(400)
-      .send("<h2>Person does not have any phone numbers!</h2>");
-  } else if (sameName) {
-    return res
-      .status(400)
-      .send("<h2>A person with the same name is added!</h2>");
-  } else {
-    const person = new Person({
-      name: newPerson.name,
-      phoneNumber: newPerson.phoneNumber,
-    });
-
-    person
+    const person = new Person({ name, phoneNumber });
+    const savedPerson = await person
       .save()
       .then((result) => {
         res.json(result);
@@ -129,6 +124,8 @@ app.post("/api/persons", (req, res, next) => {
       .catch((err) => {
         next(err);
       });
+  } catch (err) {
+    next(err);
   }
 });
 
@@ -169,7 +166,12 @@ app.use(unknownEndpoint);
 // 3.16: phone book and database, step4
 const errorHandler = (err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send("Something went wrong!");
+  if (err.name === "ValidationError") {
+    console.log(err.message);
+    return res.status(400).json({ error: err.message });
+  } else {
+    res.status(500).send("Something went wrong!");
+  }
 };
 
 app.use(errorHandler);
